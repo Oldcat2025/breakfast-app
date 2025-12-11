@@ -2,31 +2,74 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>厨神榜 - 早餐打卡</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>家庭早餐助手</title>
     <style>
-        /* --- 全局样式设定 --- */
+        /* ==============================
+           1. 全局基础样式 (Morandi 色系)
+           ============================== */
+        :root {
+            --primary-bg: #f4f5f7;       /* 浅灰背景 */
+            --card-bg: #ffffff;          /* 卡片白 */
+            --text-main: #4a4a4a;        /* 主要文字 */
+            --text-sub: #999999;         /* 次要文字 */
+            --gold: #D4AF37;             /* 香槟金 (高亮) */
+            --dark-placeholder: #2c2c2c; /* 深色占位图底色 */
+            --nav-height: 60px;          /* 底部导航高度 */
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             margin: 0;
+            padding: 0;
+            background-color: var(--primary-bg);
+            color: var(--text-main);
+            padding-bottom: calc(var(--nav-height) + 20px); /* 给底部导航留位置 */
+        }
+
+        h1, h2, h3 { margin: 0; font-weight: normal; }
+        
+        /* 隐藏所有页面，默认只显示一个 */
+        .page-section {
+            display: none;
             padding: 20px;
-            background-color: #f4f5f7; /* 莫兰迪色系：淡灰背景 */
-            color: #333;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .page-section.active {
+            display: block;
         }
 
-        h1 {
-            text-align: center;
-            color: #4a4a4a;
-            margin-bottom: 30px;
-            font-weight: 300;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* --- 1. 角色选择区域 (大气简笔画无文字版) --- */
+        /* 顶部标题栏 */
+        .app-header {
+            position: sticky;
+            top: 0;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .app-header h1 { font-size: 18px; font-weight: 600; color: #333; }
+
+        /* ==============================
+           2. 厨神榜页面样式 (我们刚才修改的核心部分)
+           ============================== */
+        
+        /* 角色选择 */
         .role-selector {
             display: flex;
             justify-content: center;
-            gap: 25px; /* 图标之间的间距 */
-            margin-bottom: 30px;
+            gap: 25px;
+            margin: 30px 0;
         }
 
         .role-card {
@@ -35,19 +78,18 @@
             align-items: center;
             cursor: pointer;
             transition: all 0.3s ease;
-            position: relative;
         }
 
-        /* SVG 图标通用样式 */
+        /* SVG 图标样式 */
         .role-icon-svg {
             width: 65px;
             height: 65px;
             fill: none;
-            stroke: #8c8c8c; /* 默认状态：莫兰迪深灰 */
+            stroke: #8c8c8c;
             stroke-width: 1.5;
             stroke-linecap: round;
             stroke-linejoin: round;
-            background: #e0e0e0; /* 默认背景：浅灰 */
+            background: #e0e0e0;
             border-radius: 50%;
             padding: 12px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
@@ -56,197 +98,310 @@
 
         /* 选中状态 */
         .role-card.active .role-icon-svg {
-            stroke: #fff; /* 线条变白 */
-            background: #D4AF37; /* 背景变香槟金，大气 */
+            stroke: #fff;
+            background: var(--gold);
             box-shadow: 0 8px 15px rgba(212, 175, 55, 0.4);
-            transform: scale(1.1); /* 稍微放大 */
+            transform: scale(1.1);
         }
 
-        /* 选中时的指示小圆点 */
-        .role-card::after {
-            content: '';
-            display: block;
-            width: 6px;
-            height: 6px;
-            background: transparent;
-            border-radius: 50%;
-            margin-top: 10px;
-            transition: background 0.3s;
-        }
-        .role-card.active::after {
-            background: #D4AF37;
-        }
-
-        /* --- 2. 拍照上传按钮 (长文字适配版) --- */
-        .upload-container {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
+        /* 拍照上传按钮 */
+        .upload-container { text-align: center; margin-bottom: 30px; }
         .upload-btn {
-            background: linear-gradient(135deg, #E6B980 0%, #EACDA3 100%); /* 金色渐变 */
+            background: linear-gradient(135deg, #E6B980 0%, #EACDA3 100%);
             color: #5d4037;
             border: none;
             padding: 15px 20px;
-            border-radius: 50px; /* 胶囊形状 */
+            border-radius: 50px;
             font-size: 15px;
             font-weight: bold;
             width: 90%;
             max-width: 400px;
             box-shadow: 0 4px 15px rgba(230, 185, 128, 0.3);
             cursor: pointer;
-            transition: transform 0.1s;
-            /* 确保文字不换行，如果屏幕太小自动缩小字体 */
-            white-space: normal; 
+            white-space: normal;
             line-height: 1.4;
         }
+        .upload-btn:active { transform: scale(0.98); }
 
-        .upload-btn:active {
-            transform: scale(0.98);
-        }
-
-        /* --- 3. 菜谱列表与深色底图 --- */
+        /* 通用卡片列表 Grid */
         .recipe-list {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); /* 自动排列卡片 */
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
             gap: 15px;
         }
 
         .recipe-card {
-            background: #fff;
+            background: var(--card-bg);
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            transition: transform 0.2s;
         }
 
-        .recipe-card:hover {
-            transform: translateY(-3px);
-        }
-
-        /* 图片容器 */
         .img-wrapper {
             width: 100%;
-            height: 120px;
+            height: 120px; /* 统一高度 */
             background-color: #f0f0f0;
             position: relative;
         }
 
-        .recipe-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
+        .recipe-img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* === 关键修改：深色通用占位图 === */
+        /* 深色占位图 */
         .recipe-img-placeholder {
             width: 100%;
             height: 100%;
-            background-color: #2c2c2c; /* 深色背景，不刺眼 */
-            display: flex; /* 默认隐藏，JS控制显示 */
+            background-color: var(--dark-placeholder);
+            display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        .placeholder-icon {
-            opacity: 0.5; /* 图标半透明 */
+        .recipe-info { padding: 10px; }
+        .recipe-title { font-size: 14px; margin-bottom: 5px; color: #333; }
+        .recipe-author { font-size: 12px; color: var(--text-sub); }
+
+
+        /* ==============================
+           3. 底部导航栏 (Bottom Navigation)
+           ============================== */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: var(--nav-height);
+            background: #fff;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            z-index: 1000;
         }
 
-        .recipe-info {
-            padding: 10px;
-        }
-
-        .recipe-title {
-            font-size: 14px;
-            margin: 0 0 5px 0;
-            color: #333;
-        }
-
-        .recipe-author {
-            font-size: 12px;
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             color: #999;
+            font-size: 10px;
+            text-decoration: none;
+            flex: 1;
+            height: 100%;
         }
 
+        .nav-item svg { width: 24px; height: 24px; margin-bottom: 4px; stroke: #999; }
+        
+        /* 导航激活状态 */
+        .nav-item.active { color: var(--gold); }
+        .nav-item.active svg { stroke: var(--gold); }
+
+        /* ==============================
+           4. 其他页面简单样式
+           ============================== */
+        /* 首页 Banner */
+        .home-banner {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 150px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+            font-size: 20px;
+        }
+        
+        /* 个人中心列表 */
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .avatar {
+            width: 60px; height: 60px;
+            border-radius: 50%;
+            background: #ddd;
+            margin-right: 15px;
+        }
+        .menu-list { background: #fff; border-radius: 10px; overflow: hidden; }
+        .menu-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
     </style>
 </head>
 <body>
 
-    <h1>☀️ 早餐打卡</h1>
+    <header class="app-header">
+        <h1 id="page-title">早餐打卡</h1>
+    </header>
 
-    <div class="role-selector">
-        <div class="role-card" onclick="selectRole('dad', this)">
-            <svg class="role-icon-svg" viewBox="0 0 24 24">
-                <path d="M12 2a5 5 0 1 0 5 5 5 5 0 0 0-5-5zm0 8a5 5 0 0 1-5-5 5 5 0 0 1 10 0 5 5 0 0 1-5 5z"/> <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/> </svg>
+    <div id="page-home" class="page-section">
+        <div class="home-banner">
+            今日推荐早餐
         </div>
-
-        <div class="role-card" onclick="selectRole('mom', this)">
-            <svg class="role-icon-svg" viewBox="0 0 24 24">
-                <path d="M12 2a5 5 0 1 0 5 5 5 5 0 0 0-5-5zm0 8a5 5 0 0 1-5-5 5 5 0 0 1 10 0 5 5 0 0 1-5 5z"/> <path d="M16 7.5C16 10.5 13.5 12 12 12s-4-1.5-4-4.5" opacity="0.4"/> <path d="M20 21v-2a4 4 0 0 0-3-3.87"/> <path d="M4 21v-2a4 4 0 0 1 3-3.87"/> <path d="M9 14h6v7H9z"/> <path d="M9 14l-1-2h8l-1 2"/> </svg>
-        </div>
-
-        <div class="role-card" onclick="selectRole('kid', this)">
-            <svg class="role-icon-svg" viewBox="0 0 24 24">
-                <circle cx="12" cy="8" r="4"/> <path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/> <path d="M8 6h8a4 4 0 0 1 0 8"/> <path d="M8 6a4 4 0 0 1 8 0"/> </svg>
-        </div>
-    </div>
-
-    <div class="upload-container">
-        <input type="file" id="cameraInput" accept="image/*" capture="camera" style="display: none;" onchange="handleFileSelect(event)">
-        
-        <button class="upload-btn" onclick="triggerCamera()">
-            请先选角色再拍照上传你做的早餐效果照片
-        </button>
-    </div>
-
-    <div class="recipe-list" id="gallery">
-        <div class="recipe-card">
-            <div class="img-wrapper">
-                <img src="error.jpg" class="recipe-img" style="display:none;" onerror="showPlaceholder(this)">
-                <div class="recipe-img-placeholder">
-                    <svg class="placeholder-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="1.5">
-                        <path d="M12 2a9 9 0 0 1 9 9v1a2 2 0 0 1-2 2h-14a2 2 0 0 1-2-2v-1a9 9 0 0 1 9-9z"/>
-                        <path d="M12 22a4 4 0 0 0 4-4h-8a4 4 0 0 0 4 4z"/>
-                    </svg>
+        <h3 style="margin-bottom:15px; font-size:16px;">热门食谱</h3>
+        <div class="recipe-list">
+            <div class="recipe-card">
+                <div class="img-wrapper">
+                    <div class="recipe-img-placeholder">
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/></svg>
+                    </div>
+                </div>
+                <div class="recipe-info">
+                    <div class="recipe-title">全麦三明治</div>
+                    <div class="recipe-author">3200人点赞</div>
                 </div>
             </div>
-            <div class="recipe-info">
-                <h3 class="recipe-title">待上传早餐</h3>
-                <span class="recipe-author">示例卡片</span>
+            <div class="recipe-card">
+                <div class="img-wrapper">
+                    <div class="recipe-img-placeholder">
+                         <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/></svg>
+                    </div>
+                </div>
+                <div class="recipe-info">
+                    <div class="recipe-title">手冲咖啡</div>
+                    <div class="recipe-author">1500人点赞</div>
+                </div>
             </div>
         </div>
     </div>
 
-    <script>
-        let currentRole = null;
+    <div id="page-rank" class="page-section active"> <div class="role-selector">
+            <div class="role-card" onclick="selectRole('dad', this)">
+                <svg class="role-icon-svg" viewBox="0 0 24 24">
+                    <path d="M12 2a5 5 0 1 0 5 5 5 5 0 0 0-5-5zm0 8a5 5 0 0 1-5-5 5 5 0 0 1 10 0 5 5 0 0 1-5 5z"/>
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                </svg>
+            </div>
+            <div class="role-card" onclick="selectRole('mom', this)">
+                <svg class="role-icon-svg" viewBox="0 0 24 24">
+                    <path d="M12 2a5 5 0 1 0 5 5 5 5 0 0 0-5-5zm0 8a5 5 0 0 1-5-5 5 5 0 0 1 10 0 5 5 0 0 1-5 5z"/>
+                    <path d="M16 7.5C16 10.5 13.5 12 12 12s-4-1.5-4-4.5" opacity="0.4"/>
+                    <path d="M20 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M4 21v-2a4 4 0 0 1 3-3.87"/>
+                    <path d="M9 14h6v7H9z"/>
+                    <path d="M9 14l-1-2h8l-1 2"/>
+                </svg>
+            </div>
+            <div class="role-card" onclick="selectRole('kid', this)">
+                <svg class="role-icon-svg" viewBox="0 0 24 24">
+                    <circle cx="12" cy="8" r="4"/>
+                    <path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/>
+                    <path d="M8 6h8a4 4 0 0 1 0 8"/>
+                    <path d="M8 6a4 4 0 0 1 8 0"/>
+                </svg>
+            </div>
+        </div>
 
-        // 1. 角色选择逻辑
-        function selectRole(role, element) {
-            currentRole = role;
+        <div class="upload-container">
+            <input type="file" id="cameraInput" accept="image/*" capture="camera" style="display: none;" onchange="handleFileSelect(event)">
+            <button class="upload-btn" onclick="triggerCamera()">
+                请先选角色再拍照上传你做的早餐效果照片
+            </button>
+        </div>
+
+        <div class="recipe-list" id="gallery">
+            <div class="recipe-card">
+                <div class="img-wrapper">
+                    <div class="recipe-img-placeholder">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="1.5">
+                            <path d="M12 2a9 9 0 0 1 9 9v1a2 2 0 0 1-2 2h-14a2 2 0 0 1-2-2v-1a9 9 0 0 1 9-9z"/>
+                            <path d="M12 22a4 4 0 0 0 4-4h-8a4 4 0 0 0 4 4z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="recipe-info">
+                    <div class="recipe-title">待上传早餐</div>
+                    <div class="recipe-author">示例位置</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-profile" class="page-section">
+        <div class="profile-header">
+            <div class="avatar"></div>
+            <div>
+                <h2 style="font-size:18px;">以太厨神</h2>
+                <span style="font-size:12px; color:#999;">ID: 9527</span>
+            </div>
+        </div>
+        <div class="menu-list">
+            <div class="menu-item"><span>我的菜谱</span> <span>></span></div>
+            <div class="menu-item"><span>打卡记录</span> <span>></span></div>
+            <div class="menu-item"><span>家庭成员管理</span> <span>></span></div>
+            <div class="menu-item"><span>设置</span> <span>></span></div>
+        </div>
+    </div>
+
+
+    <nav class="bottom-nav">
+        <div class="nav-item" onclick="switchPage('home', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+            <span>首页</span>
+        </div>
+        
+        <div class="nav-item active" onclick="switchPage('rank', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+            </svg>
+            <span>厨神榜</span>
+        </div>
+
+        <div class="nav-item" onclick="switchPage('profile', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <span>我的</span>
+        </div>
+    </nav>
+
+    <script>
+        // ================= 页面切换逻辑 =================
+        function switchPage(pageId, navElement) {
+            // 1. 隐藏所有页面
+            document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
+            // 2. 显示目标页面
+            document.getElementById('page-' + pageId).classList.add('active');
             
-            // 移除所有选中状态
-            document.querySelectorAll('.role-card').forEach(el => {
-                el.classList.remove('active');
-            });
-            
-            // 添加当前选中状态
-            element.classList.add('active');
-            
-            // 提示用户 (可选)
-            // alert('已选择角色: ' + role); 
+            // 3. 更新导航栏高亮
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            navElement.classList.add('active');
+
+            // 4. 更新顶部标题
+            const titles = { 'home': '首页发现', 'rank': '早餐打卡', 'profile': '个人中心' };
+            document.getElementById('page-title').innerText = titles[pageId];
         }
 
-        // 2. 触发拍照逻辑
+        // ================= 厨神榜业务逻辑 =================
+        let currentRole = null;
+
+        // 选择角色
+        function selectRole(role, element) {
+            currentRole = role;
+            // 样式更新
+            document.querySelectorAll('.role-card').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        // 触发拍照
         function triggerCamera() {
             if (!currentRole) {
                 alert("请先选择上面的角色头像！");
                 return;
             }
-            // 触发隐藏的文件输入框
             document.getElementById('cameraInput').click();
         }
 
-        // 3. 处理文件选择并显示
+        // 处理图片
         function handleFileSelect(event) {
             const file = event.target.files[0];
             if (file) {
@@ -258,7 +413,7 @@
             }
         }
 
-        // 4. 添加新卡片到页面
+        // 添加卡片
         function addNewCard(imgSrc) {
             const gallery = document.getElementById('gallery');
             const roleName = currentRole === 'dad' ? '爸爸' : (currentRole === 'mom' ? '妈妈' : '宝贝');
@@ -268,27 +423,25 @@
                     <div class="img-wrapper">
                         <img src="${imgSrc}" class="recipe-img" onerror="showPlaceholder(this)">
                         <div class="recipe-img-placeholder" style="display:none;">
-                            <svg class="placeholder-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="1.5">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="1.5">
                                 <path d="M12 2a9 9 0 0 1 9 9v1a2 2 0 0 1-2 2h-14a2 2 0 0 1-2-2v-1a9 9 0 0 1 9-9z"/>
                                 <path d="M12 22a4 4 0 0 0 4-4h-8a4 4 0 0 0 4 4z"/>
                             </svg>
                         </div>
                     </div>
                     <div class="recipe-info">
-                        <h3 class="recipe-title">今日早餐打卡</h3>
-                        <span class="recipe-author">${roleName} 的作品</span>
+                        <div class="recipe-title">${roleName}的最新作品</div>
+                        <div class="recipe-author">刚刚发布</div>
                     </div>
                 </div>
             `;
-            
-            // 插入到最前面
             gallery.insertAdjacentHTML('afterbegin', cardHTML);
         }
 
-        // 5. 图片加载失败时显示深色占位图
+        // 破图处理
         function showPlaceholder(imgElement) {
-            imgElement.style.display = 'none'; // 隐藏破图
-            imgElement.nextElementSibling.style.display = 'flex'; // 显示深色背景
+            imgElement.style.display = 'none';
+            imgElement.nextElementSibling.style.display = 'flex';
         }
     </script>
 </body>
