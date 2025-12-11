@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>晨曦食光 - 健宁的元气早餐</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* --- 基础设置 --- */
+        /* --- 核心配色与样式 --- */
         :root {
             --bg-deep: #051F20;
             --bg-main: #0B2B26;
@@ -21,387 +22,365 @@
             font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
             background: linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-main) 100%);
             color: var(--text-light);
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            padding-bottom: 80px; /* 底部留白 */
+            margin: 0; padding: 0; min-height: 100vh;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* --- 顶部节气栏 --- */
-        .header {
-            padding: 30px 20px 10px;
-            text-align: center;
+        /* --- 页面切换控制 --- */
+        .page { display: none; padding-bottom: 100px; animation: fadeIn 0.4s ease; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- 顶部导航 --- */
+        .header { padding: 40px 20px 20px; text-align: center; }
+        .date-badge { background: rgba(255,255,255,0.1); padding: 5px 15px; border-radius: 20px; font-size: 0.9rem; display: inline-block; margin-bottom: 10px; }
+        
+        .sub-header {
+            background: var(--card-dark); padding: 15px 20px; display: flex; align-items: center; 
+            justify-content: space-between; position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
-        .date-badge {
-            background: rgba(255,255,255,0.1);
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            display: inline-block;
-            margin-bottom: 10px;
-        }
-        .greeting {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--text-white);
-            margin-bottom: 5px;
-        }
-        .solar-term {
-            color: var(--accent-green);
-            font-size: 1rem;
+        .nav-btn {
+            background: rgba(255,255,255,0.1); border: none; color: var(--text-white); padding: 8px 15px;
+            border-radius: 20px; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; gap: 5px;
         }
 
-        /* --- 推荐食谱卡片 --- */
         .section-title {
-            padding: 20px 20px 10px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
+            padding: 10px 20px 20px; font-size: 1.2rem; font-weight: bold; display: flex; align-items: center; color: var(--text-white);
         }
         .section-title::before {
-            content: '';
-            display: block;
-            width: 4px;
-            height: 16px;
-            background: var(--accent-green);
-            margin-right: 10px;
-            border-radius: 2px;
+            content: ''; display: block; width: 5px; height: 20px; background: var(--accent-green); margin-right: 12px; border-radius: 3px;
         }
 
-        .recipe-scroll {
-            display: flex;
-            overflow-x: auto;
-            padding: 0 20px 20px;
-            gap: 15px;
-            scrollbar-width: none; /* 隐藏滚动条 */
+        /* --- 首页：纵向推荐卡片 --- */
+        .recipe-list-vertical { display: flex; flex-direction: column; gap: 25px; padding: 0 20px; }
+        .recipe-card-large {
+            background: var(--card-mid); border-radius: 24px; overflow: hidden; box-shadow: var(--shadow);
+            position: relative; transition: transform 0.2s;
         }
-        .recipe-scroll::-webkit-scrollbar { display: none; }
-
-        .recipe-card {
-            min-width: 260px;
-            background: var(--card-mid);
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-            position: relative;
-            flex-shrink: 0;
-            transition: transform 0.2s;
-        }
-        .recipe-card:active {
-            transform: scale(0.98);
-        }
-        .recipe-img {
-            height: 150px;
-            width: 100%;
-            object-fit: cover;
-            background-color: #ccc;
-        }
-        .recipe-info {
-            padding: 15px;
-        }
-        .recipe-name {
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: var(--text-white);
-            margin-bottom: 5px;
-        }
-        .recipe-tags {
-            display: flex;
-            gap: 5px;
-            margin-bottom: 10px;
-        }
-        .tag {
-            font-size: 0.7rem;
-            padding: 2px 8px;
-            border-radius: 4px;
-            background: rgba(0,0,0,0.2);
-            color: var(--accent-green);
+        .recipe-card-large:active { transform: scale(0.98); }
+        .recipe-img-large { height: 200px; width: 100%; object-fit: cover; background-color: #333; }
+        .recipe-info { padding: 20px; }
+        .recipe-name { font-size: 1.3rem; font-weight: bold; color: var(--text-white); margin-bottom: 8px; }
+        .recipe-desc-short { font-size: 0.9rem; color: #ccc; margin-bottom: 12px; line-height: 1.4; }
+        .recipe-tags { display: flex; gap: 8px; }
+        .tag { font-size: 0.75rem; padding: 4px 10px; border-radius: 6px; background: rgba(0,0,0,0.3); color: var(--accent-green); }
+        
+        .recommend-badge {
+            position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.7); color: #fff;
+            padding: 5px 12px; border-radius: 12px; font-size: 0.8rem; backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.2);
         }
         .time-badge {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: var(--accent-green);
-            color: var(--bg-deep);
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-weight: bold;
-            font-size: 0.8rem;
+            position: absolute; top: 15px; right: 15px; background: var(--accent-green); color: #051F20;
+            padding: 5px 12px; border-radius: 12px; font-weight: bold; font-size: 0.9rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
 
-        /* --- 排行榜部分 --- */
-        .leaderboard {
-            margin: 20px;
-            background: var(--card-dark);
-            border-radius: 24px;
-            padding: 20px;
-            box-shadow: var(--shadow);
+        /* --- 首页底部入口 --- */
+        .home-actions { display: flex; justify-content: center; gap: 40px; margin-top: 50px; padding-bottom: 20px; }
+        .circle-btn-wrapper { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+        .circle-btn {
+            width: 75px; height: 75px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--card-mid), var(--card-dark));
+            border: 2px solid var(--accent-green);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem; color: var(--text-white); cursor: pointer; transition: transform 0.2s;
         }
-        .rank-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-            background: rgba(255,255,255,0.05);
-            padding: 10px;
-            border-radius: 12px;
-        }
-        .rank-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--accent-green);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: var(--bg-deep);
-            margin-right: 10px;
-        }
-        .rank-info {
-            flex: 1;
-        }
-        .rank-name {
-            font-weight: bold;
-            color: var(--text-white);
-        }
-        .rank-score {
-            font-size: 0.8rem;
-            color: var(--accent-green);
-        }
-        .upload-btn {
-            width: 100%;
-            padding: 15px;
-            background: var(--accent-green);
-            color: var(--bg-deep);
-            border: none;
-            border-radius: 16px;
-            font-size: 1rem;
-            font-weight: bold;
-            margin-top: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
+        .circle-btn:active { transform: scale(0.9); }
+        .btn-label { font-size: 0.9rem; color: var(--accent-green); font-weight: bold; }
 
-        /* --- 详情弹窗 (手账风格) --- */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 1000;
-            overflow-y: auto;
-            backdrop-filter: blur(5px);
-        }
-        .modal-content {
-            background: #F4F1EA; /* 纸张颜色 */
-            color: #333;
-            margin: 20px;
-            border-radius: 20px; /* 不规则圆角 */
-            overflow: hidden;
-            position: relative;
-            min-height: 80vh;
-            padding-bottom: 20px;
-        }
-        .modal-header-img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-        }
-        .modal-body {
-            padding: 20px;
-            font-family: 'Comic Sans MS', cursive, sans-serif; /* 模拟手写 */
-        }
-        .notebook-line {
-            border-bottom: 1px dashed #ccc;
-            padding: 10px 0;
-            line-height: 1.6;
-        }
-        .close-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(0,0,0,0.5);
-            color: white;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            text-align: center;
-            line-height: 30px;
-            cursor: pointer;
-            z-index: 1001;
-        }
-        .step-img-box {
-            background: #fff;
-            padding: 5px;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
-            transform: rotate(-2deg); /* 拍立得效果 */
-            margin: 10px 0;
-            width: 80%;
-        }
-        .step-img-box img {
-            width: 100%;
-            border-radius: 4px;
-        }
+        /* --- 更多食谱网格 --- */
+        .recipe-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; }
+        .grid-card { background: var(--card-mid); border-radius: 15px; overflow: hidden; display: flex; flex-direction: column; }
+        .grid-card img { width: 100%; height: 110px; object-fit: cover; }
+        .grid-card .info { padding: 12px; }
+        .grid-card .title { font-size: 0.95rem; font-weight: bold; margin-bottom: 5px; color: var(--text-white); }
+
+        /* --- 详情弹窗 --- */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; overflow-y: auto; backdrop-filter: blur(8px); }
+        .modal-content { background: #F4F1EA; color: #333; margin: 15px; border-radius: 20px; overflow: hidden; min-height: 85vh; padding-bottom: 40px; }
+        .ingredients-box { background: #fff; margin: 15px 0; padding: 15px; border-radius: 12px; box-shadow: inset 0 0 8px rgba(0,0,0,0.03); }
+        .ing-grid { display: flex; gap: 20px; overflow-x: auto; padding-bottom: 5px; }
+        .ing-item { display: flex; flex-direction: column; align-items: center; min-width: 65px; text-align: center; }
+        .ing-img { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 3px solid #eee; margin-bottom: 5px; }
+        .notebook-line { border-bottom: 1px dashed #ccc; padding: 12px 0; line-height: 1.6; font-size: 0.95rem; }
+        
+        /* --- 排行榜 --- */
+        .leaderboard { margin: 20px; background: var(--card-dark); border-radius: 24px; padding: 25px 20px; }
+        .rank-item { display: flex; align-items: center; margin-bottom: 15px; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 15px; }
+        .rank-avatar { width: 45px; height: 45px; border-radius: 50%; background: var(--accent-green); display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--bg-deep); margin-right: 15px; font-size: 1.2rem; }
+        .rank-info { flex: 1; }
+        .rank-name { font-weight: bold; color: var(--text-white); }
+        .rank-score { font-size: 0.8rem; color: var(--accent-green); }
+        
+        /* 容错图 */
+        .img-error { display: flex; align-items: center; justify-content: center; background: #2c3e50; color: #ecf0f1; font-size: 0.8rem; height: 100%; width: 100%; }
 
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div class="date-badge" id="currentDate">2025.12.10</div>
-        <div class="greeting">早安，健宁同学！</div>
-        <div class="solar-term">今日推荐：符合 [大雪] 节气 • 补肾壮骨</div>
-    </div>
+    <div id="page-home" class="page active">
+        <div class="header">
+            <div class="date-badge" id="currentDate"></div>
+            <div style="font-size: 1.6rem; font-weight: bold; color: white; margin-bottom: 5px;">早安，健宁！</div>
+            <div style="color: var(--accent-green); opacity: 0.9;">
+                <i class="fas fa-seedling"></i> 10天不重样周期：第 <span id="cycleDay">1</span> 天
+            </div>
+        </div>
 
-    <div class="section-title">今日 10分钟 优选</div>
-    <div class="recipe-scroll">
-        <div class="recipe-card" onclick="openRecipe(0)">
-            <div class="time-badge">10 min</div>
-            <img src="https://images.unsplash.com/photo-1517601278517-456741619dad?q=80&w=600" class="recipe-img" alt="燕麦粥">
-            <div class="recipe-info">
-                <div class="recipe-name">坚果牛奶燕麦粥</div>
-                <div class="recipe-tags">
-                    <span class="tag">补钙</span>
-                    <span class="tag">健脑</span>
-                </div>
-            </div>
-        </div>
-        <div class="recipe-card" onclick="openRecipe(1)">
-            <div class="time-badge">8 min</div>
-            <img src="https://images.unsplash.com/photo-1525351484163-7529414395d8?q=80&w=600" class="recipe-img" alt="全麦三明治">
-            <div class="recipe-info">
-                <div class="recipe-name">滑蛋牛肉全麦卷</div>
-                <div class="recipe-tags">
-                    <span class="tag">高蛋白</span>
-                    <span class="tag">长高</span>
-                </div>
-            </div>
-        </div>
-        <div class="recipe-card" onclick="openRecipe(2)">
-            <div class="time-badge">10 min</div>
-            <img src="https://images.unsplash.com/photo-1627308595229-7830a5c91f9f?q=80&w=600" class="recipe-img" alt="蔬菜饼">
-            <div class="recipe-info">
-                <div class="recipe-name">虾仁西兰花烘蛋</div>
-                <div class="recipe-tags">
-                    <span class="tag">护眼</span>
-                    <span class="tag">维C</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="section-title">今日家庭厨神榜</div>
-    <div class="leaderboard">
-        <div id="rankingList">
-            </div>
+        <div class="section-title">今日优选 (10分钟快手)</div>
         
-        <input type="file" id="uploadInput" accept="image/*" style="display: none;" onchange="handleUpload(this)">
-        <button class="upload-btn" onclick="document.getElementById('uploadInput').click()">
-            📷 我做好了！上传打卡
-        </button>
+        <div class="recipe-list-vertical" id="homeRecipeList"></div>
+
+        <div class="home-actions">
+            <div class="circle-btn-wrapper" onclick="showPage('page-rank')">
+                <div class="circle-btn"><i class="fas fa-trophy"></i></div>
+                <div class="btn-label">厨神榜</div>
+            </div>
+            <div class="circle-btn-wrapper" onclick="showPage('page-more')">
+                <div class="circle-btn"><i class="fas fa-list-ul"></i></div>
+                <div class="btn-label">所有食谱</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-rank" class="page">
+        <div class="sub-header">
+            <button class="nav-btn" onclick="showPage('page-home')"><i class="fas fa-arrow-left"></i> 返回</button>
+            <span style="color:white; font-weight:bold;">家庭厨神榜</span>
+            <div style="width:60px;"></div>
+        </div>
+        <div class="leaderboard">
+            <div id="rankingList"></div>
+            <input type="file" id="uploadInput" accept="image/*" style="display: none;" onchange="handleUpload(this)">
+            <button style="width: 100%; padding: 18px; background: var(--accent-green); color: var(--bg-deep); border: none; border-radius: 16px; font-weight: bold; margin-top: 25px; font-size: 1rem; display:flex; align-items:center; justify-content:center; gap:10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);" onclick="document.getElementById('uploadInput').click()">
+                <i class="fas fa-camera"></i> 晒早餐打卡
+            </button>
+        </div>
+        <div style="text-align: center; margin-top: 30px;">
+            <button class="nav-btn" style="background:var(--card-mid); margin:0 auto; padding: 10px 25px;" onclick="showPage('page-home')">
+                <i class="fas fa-home"></i> 回到主界面
+            </button>
+        </div>
+    </div>
+
+    <div id="page-more" class="page">
+        <div class="sub-header">
+            <button class="nav-btn" onclick="showPage('page-home')"><i class="fas fa-arrow-left"></i> 返回</button>
+            <span style="color:white; font-weight:bold;">30天食谱库</span>
+            <div style="width:60px;"></div>
+        </div>
+        <div style="padding:15px 20px 0; font-size:0.9rem; color:#888;">这里展示了数据库中所有候选食谱，每日自动轮播前3个。</div>
+        <div class="recipe-grid" id="moreRecipeGrid"></div>
+        <div style="text-align: center; margin-top: 20px;">
+            <button class="nav-btn" style="background:var(--card-mid); margin:0 auto; padding: 10px 25px;" onclick="showPage('page-home')">
+                <i class="fas fa-home"></i> 回到主界面
+            </button>
+        </div>
     </div>
 
     <div id="recipeModal" class="modal">
-        <div class="close-btn" onclick="closeModal()">×</div>
-        <div class="modal-content" id="modalContent">
-            </div>
+        <div style="position:absolute; top:20px; left:20px; z-index:1002;">
+            <button class="nav-btn" style="background:rgba(0,0,0,0.6); backdrop-filter:blur(4px);" onclick="closeModal()">
+                <i class="fas fa-arrow-left"></i> 关闭
+            </button>
+        </div>
+        <div class="modal-content" id="modalContent"></div>
     </div>
 
     <script>
-        // --- 数据准备 (模拟数据库) ---
-        const recipes = [
-            {
-                title: "坚果牛奶燕麦粥",
-                img: "https://images.unsplash.com/photo-1517601278517-456741619dad?q=80&w=600",
-                desc: "燕麦富含膳食纤维，牛奶提供钙质，坚果补脑，非常适合初二学生早晨唤醒大脑。",
-                steps: [
-                    {text: "1. 锅中倒入250ml纯牛奶，小火煮至微热（边缘冒泡）。", note: "⚠️ 不要煮沸，会破坏营养！"},
-                    {text: "2. 倒入即食燕麦片，搅拌均匀，关火焖2分钟。", note: "💡 喜欢软糯口感可以多煮1分钟。"},
-                    {text: "3. 撒上一把每日坚果（核桃、巴旦木）和蓝莓即可。", note: "📸 摆盘时把坚果放中间，好看又有食欲！"}
-                ]
-            },
-            {
-                title: "滑蛋牛肉全麦卷",
-                img: "https://images.unsplash.com/photo-1525351484163-7529414395d8?q=80&w=600",
-                desc: "牛肉含有丰富的铁和锌，助力骨骼发育。全麦饼皮提供长效能量。",
-                steps: [
-                    {text: "1. 平底锅刷油，将全麦饼皮两面加热备用。", note: ""},
-                    {text: "2. 鸡蛋打散，加入少许盐和牛奶，炒成滑蛋。", note: "🔥 大火快炒，保持嫩滑。"},
-                    {text: "3. 利用余温加热一下熟牛肉片（或午餐肉）。", note: ""},
-                    {text: "4. 饼皮铺底，放生菜、滑蛋、牛肉，卷起来切开。", note: "💡 用保鲜膜包紧再切，切面更整齐！"}
-                ]
-            },
-            {
-                title: "虾仁西兰花烘蛋",
-                img: "https://images.unsplash.com/photo-1627308595229-7830a5c91f9f?q=80&w=600",
-                desc: "色彩丰富，引起食欲。西兰花是蔬菜之王，搭配虾仁，低脂高蛋白。",
-                steps: [
-                    {text: "1. 西兰花切小朵，沸水焯水1分钟捞出。", note: "⚠️ 水里加点油盐，保持翠绿。"},
-                    {text: "2. 鸡蛋2个打散，加入虾仁和焯好的西兰花。", note: ""},
-                    {text: "3. 平底锅刷油，倒入蛋液混合物，小火烘至凝固。", note: "💡 盖上锅盖焖2分钟熟得更快。"},
-                    {text: "4. 撒上黑胡椒粉即可出锅。", note: ""}
-                ]
-            }
+        // ================= 核心数据库：30道快手食谱 =================
+        // 为了确保图片稳定，部分食谱复用了可靠的分类图片
+        const RECIPE_DB = [
+            // --- Day 1 ---
+            { title: "坚果牛奶燕麦粥", time: "5 min", tags: ["补脑", "钙"], img: "https://images.unsplash.com/photo-1517601278517-456741619dad?w=800&q=80", desc: "经典补脑早餐，牛奶温热即可。", ingredients: [{name:"燕麦",img:""},{name:"牛奶",img:""}] },
+            { title: "滑蛋牛肉全麦卷", time: "8 min", tags: ["长高", "铁"], img: "https://images.unsplash.com/photo-1626132647523-66f5bf380027?w=800&q=80", desc: "牛肉补铁，全麦抗饿。", ingredients: [{name:"全麦饼",img:""},{name:"牛肉",img:""}] },
+            { title: "虾仁西兰花烘蛋", time: "10 min", tags: ["护眼", "维C"], img: "https://images.unsplash.com/photo-1627308595229-7830a5c91f9f?w=800&q=80", desc: "色彩丰富，低脂高蛋白。", ingredients: [{name:"虾仁",img:""},{name:"西兰花",img:""}] },
+            
+            // --- Day 2 ---
+            { title: "金枪鱼玉米三明治", time: "5 min", tags: ["益智", "DHA"], img: "https://images.unsplash.com/photo-1550505096-279ea0112702?w=800&q=80", desc: "罐头金枪鱼即食方便，富含DHA。", ingredients: [{name:"吐司",img:""},{name:"金枪鱼",img:""}] },
+            { title: "葱油阳春面(简易版)", time: "8 min", tags: ["暖胃", "碳水"], img: "https://images.unsplash.com/photo-1612929633738-8fe44f7ec841?w=800&q=80", desc: "一把挂面，一勺酱油猪油，暖心。", ingredients: [{name:"挂面",img:""},{name:"小葱",img:""}] },
+            { title: "煎蛋午餐肉饭团", time: "10 min", tags: ["能量", "抗饿"], img: "https://images.unsplash.com/photo-1563102325-1a3b37905d49?w=800&q=80", desc: "米饭包上海苔，中间夹煎蛋。", ingredients: [{name:"米饭",img:""},{name:"海苔",img:""}] },
+
+            // --- Day 3 ---
+            { title: "紫薯芝士球", time: "10 min", tags: ["粗粮", "钙"], img: "https://images.unsplash.com/photo-1606525437679-037aca74a3e9?w=800&q=80", desc: "蒸紫薯压泥包芝士片，平底锅煎。", ingredients: [{name:"紫薯",img:""},{name:"芝士",img:""}] },
+            { title: "番茄鸡蛋疙瘩汤", time: "10 min", tags: ["开胃", "易消化"], img: "https://images.unsplash.com/photo-1547592166-23acbe34071b?w=800&q=80", desc: "面粉搅絮，番茄汤底一煮即成。", ingredients: [{name:"面粉",img:""},{name:"番茄",img:""}] },
+            { title: "花生酱香蕉吐司", time: "3 min", tags: ["快手", "钾"], img: "https://images.unsplash.com/photo-1550614000-4b9519e07d72?w=800&q=80", desc: "无需开火，抹酱切香蕉。", ingredients: [{name:"吐司",img:""},{name:"香蕉",img:""}] },
+
+            // --- Day 4 ---
+            { title: "速冻馄饨+紫菜汤", time: "8 min", tags: ["方便", "汤水"], img: "https://images.unsplash.com/photo-1541696432-82c6da8ce7ea?w=800&q=80", desc: "冰箱常备小馄饨，加紫菜虾皮。", ingredients: [{name:"馄饨",img:""},{name:"紫菜",img:""}] },
+            { title: "牛油果溏心蛋吐司", time: "6 min", tags: ["优质脂", "脑力"], img: "https://images.unsplash.com/photo-1525351484163-7529414395d8?w=800&q=80", desc: "牛油果捣泥，煎个太阳蛋。", ingredients: [{name:"牛油果",img:""},{name:"鸡蛋",img:""}] },
+            { title: "小米南瓜粥(隔夜)", time: "0 min", tags: ["养胃", "粗粮"], img: "https://images.unsplash.com/photo-1517601278517-456741619dad?w=800&q=80", desc: "电饭煲预约功能，早上直接吃。", ingredients: [{name:"小米",img:""},{name:"南瓜",img:""}] },
+
+            // --- Day 5 ---
+            { title: "鸡胸肉蔬菜沙拉", time: "8 min", tags: ["减脂", "高蛋白"], img: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80", desc: "煎熟鸡胸肉，拌入生菜油醋汁。", ingredients: [{name:"鸡胸",img:""},{name:"生菜",img:""}] },
+            { title: "红糖发糕(半成品)", time: "10 min", tags: ["传统", "能量"], img: "https://images.unsplash.com/photo-1621655065166-73138356947c?w=800&q=80", desc: "超市买冷冻发糕，上汽蒸10分钟。", ingredients: [{name:"发糕",img:""},{name:"牛奶",img:""}] },
+            { title: "酸奶水果捞碗", time: "3 min", tags: ["维C", "益生菌"], img: "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=800&q=80", desc: "浓稠酸奶加坚果碎和当季水果。", ingredients: [{name:"酸奶",img:""},{name:"蓝莓",img:""}] },
+
+            // --- Day 6 ---
+            { title: "培根手抓饼", time: "5 min", tags: ["香脆", "解馋"], img: "https://images.unsplash.com/photo-1626078299034-297eb040a43e?w=800&q=80", desc: "冷冻手抓饼无需油，两面煎黄。", ingredients: [{name:"手抓饼",img:""},{name:"培根",img:""}] },
+            { title: "蒸红薯+煮鸡蛋", time: "10 min", tags: ["极简", "优质"], img: "https://images.unsplash.com/photo-1594970420448-6932a93361e6?w=800&q=80", desc: "一锅出，健康无油烟。", ingredients: [{name:"红薯",img:""},{name:"鸡蛋",img:""}] },
+            { title: "肉松蛋黄三明治", time: "5 min", tags: ["咸香", "能量"], img: "https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=800&q=80", desc: "两片吐司夹肉松和沙拉酱。", ingredients: [{name:"肉松",img:""},{name:"吐司",img:""}] },
+
+            // --- Day 7 ---
+            { title: "黄油煎馒头片", time: "5 min", tags: ["剩饭", "香酥"], img: "https://images.unsplash.com/photo-1626202166699-b1d5c7075b14?w=800&q=80", desc: "剩馒头切片裹蛋液煎至金黄。", ingredients: [{name:"馒头",img:""},{name:"鸡蛋",img:""}] },
+            { title: "牛奶泡玉米片", time: "2 min", tags: ["西式", "极速"], img: "https://images.unsplash.com/photo-1520025642999-566275e5262c?w=800&q=80", desc: "家乐氏玉米片冲冷牛奶。", ingredients: [{name:"玉米片",img:""},{name:"牛奶",img:""}] },
+            { title: "快手蛋炒饭", time: "8 min", tags: ["剩饭", "管饱"], img: "https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=800&q=80", desc: "剩米饭加火腿丁鸡蛋快炒。", ingredients: [{name:"米饭",img:""},{name:"火腿",img:""}] },
+
+            // --- Day 8 ---
+            { title: "墨西哥鸡肉卷", time: "8 min", tags: ["异域", "便携"], img: "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=800&q=80", desc: "卷饼夹生菜和熟鸡柳。", ingredients: [{name:"卷饼",img:""},{name:"鸡柳",img:""}] },
+            { title: "日式味噌汤泡饭", time: "5 min", tags: ["暖身", "发酵"], img: "https://images.unsplash.com/photo-1547592180-85f173990554?w=800&q=80", desc: "即食味噌汤包冲开水泡饭。", ingredients: [{name:"味噌",img:""},{name:"米饭",img:""}] },
+            { title: "蓝莓山药泥", time: "10 min", tags: ["健脾", "甜品"], img: "https://images.unsplash.com/photo-1567529684892-09290a1b2d05?w=800&q=80", desc: "铁棍山药蒸熟压泥淋蓝莓酱。", ingredients: [{name:"山药",img:""},{name:"蓝莓酱",img:""}] },
+
+            // --- Day 9 ---
+            { title: "平底锅披萨", time: "10 min", tags: ["丰富", "趣味"], img: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&q=80", desc: "吐司片铺番茄酱、香肠和芝士闷化。", ingredients: [{name:"吐司",img:""},{name:"芝士碎",img:""}] },
+            { title: "黑芝麻糊(冲泡)", time: "3 min", tags: ["乌发", "传统"], img: "https://images.unsplash.com/photo-1505253716371-bab3a29d6d09?w=800&q=80", desc: "南方黑芝麻糊冲热牛奶。", ingredients: [{name:"芝麻粉",img:""},{name:"牛奶",img:""}] },
+            { title: "西葫芦鸡蛋饼", time: "10 min", tags: ["蔬菜", "软嫩"], img: "https://images.unsplash.com/photo-1627308595229-7830a5c91f9f?w=800&q=80", desc: "西葫芦擦丝拌面粉鸡蛋煎熟。", ingredients: [{name:"西葫芦",img:""},{name:"面粉",img:""}] },
+
+            // --- Day 10 ---
+            { title: "广东肠粉(家庭版)", time: "8 min", tags: ["风味", "清淡"], img: "https://images.unsplash.com/photo-1555126634-323283e090fa?w=800&q=80", desc: "用越南春卷皮泡软卷蛋液蒸熟。", ingredients: [{name:"春卷皮",img:""},{name:"鸡蛋",img:""}] },
+            { title: "法式吐司", time: "8 min", tags: ["香甜", "松软"], img: "https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=800&q=80", desc: "厚切吐司浸满蛋奶液煎黄。", ingredients: [{name:"吐司",img:""},{name:"牛奶",img:""}] },
+            { title: "鲜虾云吞面", time: "8 min", tags: ["港式", "鲜美"], img: "https://images.unsplash.com/photo-1596797038530-2c107229654b?w=800&q=80", desc: "竹升面(或挂面)煮熟加冷冻云吞。", ingredients: [{name:"面条",img:""},{name:"云吞",img:""}] }
         ];
 
-        // --- 初始化日期 ---
-        const date = new Date();
-        document.getElementById('currentDate').innerText = `${date.getFullYear()}.${date.getMonth()+1}.${date.getDate()} | 农历十一月`;
-
-        // --- 交互逻辑 ---
-        function openRecipe(index) {
-            const r = recipes[index];
-            let stepsHtml = '';
-            r.steps.forEach(step => {
-                stepsHtml += `
-                    <div class="notebook-line">
-                        <strong>${step.text}</strong><br>
-                        ${step.note ? `<span style="color:#d35400; font-size:0.9rem;">${step.note}</span>` : ''}
-                    </div>
-                `;
+        // 统一补充通用步骤和备用图
+        RECIPE_DB.forEach(r => {
+            if(!r.steps) {
+                r.steps = [
+                    {text: "1. 准备食材，清洗切配。", note: "⏰ 预计耗时 2分钟"},
+                    {text: "2. 按照描述进行加热或烹饪。", note: "🔥 注意火候"},
+                    {text: "3. 装盘上桌，搭配牛奶或豆浆。", note: "✅ 完成"}
+                ];
+            }
+            // 给食材补个通用占位图
+            r.ingredients.forEach(i => {
+                if(!i.img) i.img = "https://images.unsplash.com/photo-1606914469725-e39c34bfdebe?w=100&q=80"; // 通用食材图
             });
+        });
 
-            // 模拟图文混排，随机插入一张步骤图
-            stepsHtml += `
-                <div class="step-img-box" style="margin: 20px auto;">
-                    <img src="${r.img}" alt="实操图">
-                    <div style="text-align:center; font-size:0.8rem; color:#666;">（制作过程记录）</div>
+        // ================= 智能轮播逻辑 =================
+        const date = new Date();
+        const startOfYear = new Date(date.getFullYear(), 0, 0);
+        const diff = date - startOfYear;
+        const oneDay = 1000 * 60 * 60 * 24;
+        const dayOfYear = Math.floor(diff / oneDay); // 计算今天是今年的第几天
+        
+        // 核心算法：(天数 * 3) % 总数 -> 保证循环且每天不同
+        const totalRecipes = RECIPE_DB.length;
+        const startIndex = (dayOfYear * 3) % totalRecipes;
+        
+        // 获取今天的3个索引 (处理数组越界回环)
+        const dailyIndices = [
+            startIndex,
+            (startIndex + 1) % totalRecipes,
+            (startIndex + 2) % totalRecipes
+        ];
+
+        // 10天周期计算 (仅用于显示)
+        const cycleDay = (dayOfYear % 10) + 1; 
+
+        // ================= 页面渲染 =================
+        document.getElementById('currentDate').innerText = `${date.getFullYear()}.${date.getMonth()+1}.${date.getDate()} | 农历${getLunarDate()}`;
+        document.getElementById('cycleDay').innerText = cycleDay;
+
+        // 1. 渲染首页 (Vertical)
+        const homeList = document.getElementById('homeRecipeList');
+        dailyIndices.forEach((rIndex, i) => {
+            const r = RECIPE_DB[rIndex];
+            const onError = "this.onerror=null;this.parentElement.innerHTML='<div class=\"img-error\">🍽️ 美味图片</div>';";
+            homeList.innerHTML += `
+                <div class="recipe-card-large" onclick="openRecipe(${rIndex})">
+                    <div class="recommend-badge">今日推荐 ${i + 1}</div>
+                    <div class="time-badge">${r.time}</div>
+                    <img src="${r.img}" class="recipe-img-large" alt="${r.title}" onerror="${onError}">
+                    <div class="recipe-info">
+                        <div class="recipe-name">${r.title}</div>
+                        <div class="recipe-desc-short">${r.desc}</div>
+                        <div class="recipe-tags">
+                            ${r.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+                        </div>
+                    </div>
                 </div>
             `;
+        });
+
+        // 2. 渲染更多 (Grid)
+        const moreList = document.getElementById('moreRecipeGrid');
+        RECIPE_DB.forEach((r, idx) => {
+            const onError = "this.onerror=null;this.parentElement.innerHTML='<div class=\"img-error\">🍽️</div>';";
+            moreList.innerHTML += `
+                <div class="grid-card" onclick="openRecipe(${idx})">
+                    <img src="${r.img}" alt="${r.title}" onerror="${onError}">
+                    <div class="info">
+                        <div class="title">${r.title}</div>
+                        <div style="font-size:0.7rem; color:var(--accent-green);">${r.time}</div>
+                    </div>
+                </div>`;
+        });
+
+        // 3. 详情页逻辑
+        function openRecipe(index) {
+            const r = RECIPE_DB[index];
+            const onError = "this.src='https://via.placeholder.com/100?text=Food'";
+            let ingHtml = r.ingredients.map(ing => `
+                <div class="ing-item">
+                    <img src="${ing.img}" class="ing-img" onerror="${onError}">
+                    <span class="ing-name">${ing.name}</span>
+                </div>
+            `).join('');
+
+            let stepsHtml = r.steps.map(step => `
+                <div class="notebook-line">
+                    <strong>${step.text}</strong><br>
+                    ${step.note ? `<span style="color:#d35400; font-size:0.9rem;">${step.note}</span>` : ''}
+                </div>
+            `).join('');
 
             const html = `
-                <img src="${r.img}" class="modal-header-img">
-                <div class="modal-body">
-                    <h2 style="color:#235347;">${r.title}</h2>
-                    <p style="background:rgba(142, 182, 155, 0.2); padding:10px; border-radius:8px;">${r.desc}</p>
-                    <h3 style="border-bottom:2px solid #235347; display:inline-block;">手账记录 · 做法</h3>
+                <img src="${r.img}" style="width:100%; height:260px; object-fit:cover;">
+                <div style="padding:20px; font-family: 'Comic Sans MS', cursive, sans-serif;">
+                    <h2 style="color:#235347; margin-top:0;">${r.title}</h2>
+                    <p style="background:rgba(142, 182, 155, 0.2); padding:10px; border-radius:8px; font-size:0.9rem;">${r.desc}</p>
+                    
+                    <h4 style="border-left:4px solid #235347; padding-left:10px; margin-bottom:15px;">所需食材 (原料)</h4>
+                    <div class="ingredients-box">
+                        <div class="ing-grid">${ingHtml}</div>
+                    </div>
+
+                    <h4 style="border-left:4px solid #235347; padding-left:10px; margin-top:25px;">手账记录 · 做法</h4>
                     ${stepsHtml}
+
+                    <div style="margin-top:40px; border-top:1px solid #ddd; padding-top:20px;">
+                        <button class="nav-btn" style="background:#235347; width:100%; justify-content:center; padding:12px;" onclick="closeModal()">返回列表</button>
+                    </div>
                 </div>
             `;
             document.getElementById('modalContent').innerHTML = html;
             document.getElementById('recipeModal').style.display = 'block';
         }
 
-        function closeModal() {
-            document.getElementById('recipeModal').style.display = 'none';
+        function closeModal() { document.getElementById('recipeModal').style.display = 'none'; }
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            window.scrollTo(0,0);
         }
 
-        // --- 排行榜逻辑 (模拟) ---
-        let users = [
-            { name: "妈妈", score: 5, role: "chef" },
-            { name: "爸爸", score: 2, role: "chef" },
-            { name: "健宁", score: 3, role: "kid" }
-        ];
-
-        function renderRank() {
-            // 排序
+        // --- 简单辅助功能 ---
+        function getLunarDate(){ return "冬月"; } // 简化版农历
+        function handleUpload(input) {
+            if (input.files[0]) { alert("✅ 上传成功！厨艺值+1"); renderRank(true); }
+        }
+        
+        let users = [{ name: "妈妈", score: 5 }, { name: "爸爸", score: 2 }, { name: "健宁", score: 3 }];
+        function renderRank(addScore = false) {
+            if(addScore) users[0].score++;
             users.sort((a, b) => b.score - a.score);
             let html = '';
             users.forEach((u, index) => {
-                let medal = index === 0 ? '👑' : (index+1);
                 html += `
                     <div class="rank-item">
                         <div class="rank-avatar">${u.name[0]}</div>
@@ -409,28 +388,10 @@
                             <div class="rank-name">${u.name} ${index===0 ? '👑' : ''}</div>
                             <div class="rank-score">本周打卡: ${u.score} 次</div>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             });
             document.getElementById('rankingList').innerHTML = html;
         }
-
-        function handleUpload(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    // 模拟上传成功，随机给一个角色加分 (演示用，假设是当前操作者)
-                    alert("✅ 打卡成功！这道菜看起来太棒了！积分+1");
-                    
-                    // 这里简单模拟让"健宁"或者选择一个角色加分，为了演示方便，我们让"妈妈"加分
-                    users[0].score += 1; 
-                    renderRank();
-                }
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        // 启动
         renderRank();
 
     </script>
