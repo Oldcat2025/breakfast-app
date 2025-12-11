@@ -73,7 +73,8 @@
             position: relative; transition: transform 0.2s;
         }
         .recipe-card-large:active { transform: scale(0.98); }
-        .recipe-img-large { height: 190px; width: 100%; object-fit: cover; background-color: #2c3e50; transition: opacity 0.3s;}
+        /* 默认底色改为深色，防止图片加载前闪白 */
+        .recipe-img-large { height: 190px; width: 100%; object-fit: cover; background-color: var(--card-dark); transition: opacity 0.3s;}
         .recipe-info { padding: 15px 20px; }
         .recipe-name { font-size: 1.2rem; font-weight: bold; color: var(--text-white); margin-bottom: 6px; }
         .recipe-tags { display: flex; gap: 8px; margin-top: 8px; }
@@ -87,25 +88,39 @@
         /* --- 更多列表 (Grid) --- */
         .recipe-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 15px; }
         .grid-card { background: var(--card-mid); border-radius: 15px; overflow: hidden; display: flex; flex-direction: column; height: 100%; }
-        .grid-card img { width: 100%; height: 110px; object-fit: cover; background: #2c3e50; }
+        /* 默认底色改为深色 */
+        .grid-card img { width: 100%; height: 110px; object-fit: cover; background: var(--card-dark); }
         .grid-card .info { padding: 10px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
         .grid-card .title { font-size: 0.9rem; font-weight: bold; color: var(--text-white); line-height: 1.3; }
 
-        /* --- 厨神榜 --- */
+        /* --- 厨神榜 (修改重点) --- */
         .leaderboard { margin: 20px; background: var(--card-dark); border-radius: 24px; padding: 20px; }
         .role-selector {
-            display: flex; justify-content: center; gap: 25px; margin-bottom: 25px; 
+            display: flex; justify-content: center; gap: 30px; margin-bottom: 25px; 
             border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 25px;
         }
         .role-btn {
-            width: 60px; height: 60px; border-radius: 50%; background: rgba(255,255,255,0.05); 
+            width: 70px; height: 70px; /* 加大尺寸 */
+            border-radius: 50%; 
+            background: linear-gradient(145deg, #1a423b, #13302b); /* 深色渐变立体感 */
             display: flex; align-items: center; justify-content: center; flex-direction: column;
-            color: #888; transition: all 0.3s; cursor: pointer; border: 2px solid transparent;
+            color: #555; /* 未选中时暗淡 */
+            transition: all 0.3s; cursor: pointer; 
+            border: 2px solid rgba(255,255,255,0.05);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
-        .role-btn i { font-size: 1.5rem; margin-bottom: 0; }
+        .role-btn i { 
+            font-size: 2rem; /* 图标放大 */
+            margin-bottom: 0; 
+        }
         .role-btn.selected { 
-            background: var(--card-mid); border-color: var(--accent-gold); color: var(--accent-gold); transform: scale(1.1); 
+            background: var(--card-mid); 
+            border-color: var(--accent-gold); 
+            color: var(--accent-gold); 
+            box-shadow: 0 0 15px rgba(224, 159, 62, 0.3); /* 金色光晕 */
+            transform: scale(1.1); 
         }
+        
         .rank-item { 
             display: flex; align-items: center; padding: 12px; margin-bottom: 10px; 
             background: rgba(255,255,255,0.05); border-radius: 12px; cursor: pointer;
@@ -116,7 +131,7 @@
         }
         .history-panel { display: none; background: rgba(0,0,0,0.2); padding: 10px; margin-bottom: 10px; border-radius: 8px; }
         .history-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-        .history-img { width: 100%; height: 70px; object-fit: cover; border-radius: 6px; }
+        .history-img { width: 100%; height: 70px; object-fit: cover; border-radius: 6px; background: var(--card-dark); }
 
         /* --- 底部导航 --- */
         .bottom-dock {
@@ -137,7 +152,7 @@
         .modal-content { background: #F4F1EA; color: #333; margin: 15px; border-radius: 20px; min-height: 85vh; padding-bottom: 40px; }
         .ing-grid { display: flex; gap: 15px; overflow-x: auto; padding: 10px 0; }
         .ing-item { text-align: center; min-width: 60px; }
-        .ing-img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #ddd; }
+        .ing-img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #ddd; background: #ddd; }
         
         /* 步骤样式 */
         .step-item { padding: 12px 0; border-bottom: 1px dashed #ccc; display: flex; gap: 10px; }
@@ -183,23 +198,20 @@
             <div class="role-selector">
                 <div class="role-btn" onclick="setRole('mom')" id="r-mom">
                     <i class="fas fa-user-nurse"></i>
-                    <span style="font-size:0.7rem;">妈妈</span>
                 </div>
                 <div class="role-btn" onclick="setRole('dad')" id="r-dad">
                     <i class="fas fa-user-tie"></i>
-                    <span style="font-size:0.7rem;">爸爸</span>
                 </div>
                 <div class="role-btn" onclick="setRole('kid')" id="r-kid">
                     <i class="fas fa-child"></i>
-                    <span style="font-size:0.7rem;">健宁</span>
                 </div>
             </div>
             <div id="rankList"></div>
             
             <div style="text-align:center; margin-top:20px;">
                 <input type="file" id="upFile" accept="image/*" style="display:none;" onchange="doUpload(this)">
-                <button id="upBtn" onclick="clkUpload()" style="width:100%; padding:15px; border-radius:15px; border:none; background:#444; color:#888; font-weight:bold;">
-                    <i class="fas fa-camera"></i> 请先选择角色
+                <button id="upBtn" onclick="clkUpload()" style="width:100%; padding:15px; border-radius:15px; border:none; background:#444; color:#aaa; font-weight:bold; font-size:0.9rem;">
+                    <i class="fas fa-camera"></i> 请先点击上方角色头像，再拍照上传
                 </button>
             </div>
         </div>
@@ -227,12 +239,14 @@
     </div>
 
     <script>
-        const FALLBACK_IMG = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80";
+        // === 关键修改：使用深色背景的 SVG 作为兜底图，不再使用白色背景 ===
+        // 这是一个 Base64 编码的 SVG 图片，底色为 #163832 (深绿)，中间有一个浅色的餐盘图标
+        const DARK_PLACEHOLDER_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect width='600' height='400' fill='%23163832'/%3E%3Cg transform='translate(250, 150)' fill='none' stroke='%233D6E60' stroke-width='4'%3E%3Ccircle cx='50' cy='50' r='40'/%3E%3Cpath d='M50 25 L50 75 M25 50 L75 50'/%3E%3C/g%3E%3Ctext x='300' y='280' font-family='sans-serif' font-size='20' fill='%233D6E60' text-anchor='middle'%3E暂无图片%3C/text%3E%3C/svg%3E";
+
         const COMMON_ING_IMG = "https://images.unsplash.com/photo-1606914469725-e39c34bfdebe?auto=format&fit=crop&w=100&q=80";
 
-        // === 核心数据：包含详细的个性化步骤 ===
+        // === 核心数据 ===
         const DB = [
-            // No.1 黄金蛋煎吐司
             {
                 title: "黄金蛋煎吐司", time: "5 min", tags: ["剩饭神器","香软"],
                 img: "https://images.unsplash.com/photo-1484723091739-30a097e8f929?auto=format&fit=crop&w=800&q=80",
@@ -244,7 +258,6 @@
                     {t:"放入锅中，小火慢煎至两面金黄（约每面1分钟），出锅可淋少许蜂蜜。", p:"🔥 全程小火，避免煎糊。"}
                 ]
             },
-            // No.2 葱油拌面
             {
                 title: "快手葱油拌面", time: "8 min", tags: ["开胃","能量"],
                 img: "https://images.unsplash.com/photo-1612929633738-8fe44f7ec841?auto=format&fit=crop&w=800&q=80",
@@ -256,7 +269,6 @@
                     {t:"面条煮熟捞出过凉开水（更劲道），沥干水份放入碗中，淋上酱汁和葱花拌匀即可。", p:"✅ 早上不想熬葱油，直接用香油代替也很香。"}
                 ]
             },
-            // No.3 坚果牛奶燕麦
             {
                 title: "坚果牛奶燕麦粥", time: "5 min", tags: ["补脑","钙"],
                 img: "https://images.unsplash.com/photo-1517601278517-456741619dad?auto=format&fit=crop&w=800&q=80",
@@ -268,7 +280,6 @@
                     {t:"盛出后，表面撒上一把每日坚果和蔓越莓干，增加口感层次。", p:""}
                 ]
             },
-            // No.4 鲜肉云吞
             {
                 title: "紫菜虾皮小云吞", time: "8 min", tags: ["汤水","暖胃"],
                 img: "https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=800&q=80",
@@ -280,7 +291,6 @@
                     {t:"先舀一勺热汤冲入碗底化开调料，再捞入云吞即可。", p:"🔥 先冲汤再放云吞，味道更匀。"}
                 ]
             },
-            // No.5 鸡蛋三明治
             {
                 title: "滑蛋火腿三明治", time: "5 min", tags: ["高蛋白","快手"],
                 img: "https://images.unsplash.com/photo-1525351484163-7529414395d8?auto=format&fit=crop&w=800&q=80",
@@ -292,7 +302,6 @@
                     {t:"吐司不放油稍微烘热，依次铺上生菜、火腿、滑蛋，盖上另一片吐司对角切开。", p:""}
                 ]
             },
-            // No.6 广式蒸水蛋
             {
                 title: "广式蒸水蛋", time: "10 min", tags: ["嫩滑","好吸收"],
                 img: "https://images.unsplash.com/photo-1512443048503-45607db35378?auto=format&fit=crop&w=800&q=80",
@@ -304,7 +313,6 @@
                     {t:"水开后上锅蒸8-10分钟，关火焖2分钟，出锅淋上生抽和香油。", p:""}
                 ]
             },
-            // No.7 蓝莓山药
             {
                 title: "蓝莓山药泥", time: "10 min", tags: ["健脾","甜点"],
                 img: "https://images.unsplash.com/photo-1550523024-65939765876e?auto=format&fit=crop&w=800&q=80", 
@@ -316,7 +324,6 @@
                     {t:"将山药泥堆成小山形状，淋上蓝莓酱即可。", p:""}
                 ]
             },
-            // No.8 虾仁滑蛋
             {
                 title: "虾仁西兰花滑蛋", time: "8 min", tags: ["低脂","护眼"],
                 img: "https://images.unsplash.com/photo-1627308595229-7830a5c91f9f?auto=format&fit=crop&w=800&q=80", 
@@ -328,7 +335,6 @@
                     {t:"平底锅烧热油，倒入混合蛋液，底部凝固后轻轻推炒，蛋液完全凝固即可出锅。", p:"🔥 也是要火大快炒，保持嫩度。"}
                 ]
             },
-            // No.9 牛油果溏心蛋
             {
                 title: "牛油果溏心蛋", time: "5 min", tags: ["优质油","脑力"],
                 img: "https://images.unsplash.com/photo-1550953831-295058f967f6?auto=format&fit=crop&w=800&q=80",
@@ -340,7 +346,6 @@
                     {t:"将煎蛋和牛油果摆盘，撒上黑胡椒粉和几滴酱油。", p:"✅ 简单的食材需要优质调料激发味道。"}
                 ]
             },
-            // No.10 鸡肉卷
             {
                 title: "生菜鸡肉卷", time: "8 min", tags: ["便携","减脂"],
                 img: "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?auto=format&fit=crop&w=800&q=80",
@@ -352,36 +357,18 @@
                     {t:"饼上刷点番茄酱或甜面酱，铺上洗净的生菜和鸡肉条，卷紧即可。", p:"⚠️ 卷紧点，吃的时候不漏。"}
                 ]
             },
-            // --- 补充菜谱 (使用稳定通用图) ---
+            // --- 补充菜谱 (以下是故意设置的坏链接，用于测试深色替补图效果) ---
             { 
                 title: "酸奶水果碗", time: "3 min", tags: ["维C"], 
-                img: "https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=600", 
+                img: "INVALID_URL_TEST", 
                 desc:"酸奶拌水果。", ings:[{n:"酸奶",i:""},{n:"水果",i:""}],
                 steps: [{t:"水果（香蕉、蓝莓、草莓等）洗净切块。",p:""},{t:"倒入浓稠酸奶。",p:""},{t:"撒上坚果碎拌匀。",p:""}]
             },
             { 
                 title: "煮红薯鸡蛋", time: "10 min", tags: ["极简"], 
-                img: "https://images.unsplash.com/photo-1594970420448-6932a93361e6?auto=format&fit=crop&w=600", 
+                img: "INVALID_URL_TEST_2", 
                 desc:"一锅蒸熟。", ings:[{n:"红薯",i:""},{n:"鸡蛋",i:""}],
                 steps: [{t:"红薯洗净切成小块（切小熟得快）。",p:""},{t:"和鸡蛋一起冷水下锅煮或蒸。",p:""},{t:"水开后煮10-12分钟即可。",p:""}]
-            },
-            { 
-                title: "快手蛋炒饭", time: "8 min", tags: ["管饱"], 
-                img: "https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=600", 
-                desc:"剩米饭炒蛋。", ings:[{n:"米饭",i:""},{n:"鸡蛋",i:""}],
-                steps: [{t:"鸡蛋打散，热油炒熟盛出。",p:""},{t:"倒入剩米饭铲散炒热。",p:""},{t:"加入鸡蛋、盐和葱花翻炒均匀。",p:"🔥 必须用大火炒才有镬气。"}]
-            },
-            { 
-                title: "牛奶玉米片", time: "2 min", tags: ["极速"], 
-                img: "https://images.unsplash.com/photo-1520025642999-566275e5262c?auto=format&fit=crop&w=600", 
-                desc:"即食谷物。", ings:[{n:"玉米片",i:""},{n:"牛奶",i:""}],
-                steps: [{t:"取碗倒入即食玉米片。",p:""},{t:"冲入冷牛奶或热牛奶。",p:""},{t:"即泡即吃，保持酥脆。",p:""}]
-            },
-            { 
-                title: "金枪鱼饭团", time: "8 min", tags: ["DHA"], 
-                img: "https://images.unsplash.com/photo-1563102325-1a3b37905d49?auto=format&fit=crop&w=600", 
-                desc:"米饭拌罐头鱼。", ings:[{n:"米饭",i:""},{n:"金枪鱼",i:""}],
-                steps: [{t:"金枪鱼罐头沥干油水，捣碎。",p:""},{t:"加入沙拉酱拌匀。",p:""},{t:"热米饭中间包入金枪鱼，捏成三角形，包上海苔。",p:""}]
             }
         ];
 
@@ -400,7 +387,7 @@
         const cycle = (dayOfYear % 10) + 1;
         document.getElementById('cycleNum').innerText = cycle;
 
-        // --- 渲染逻辑 ---
+        // --- 渲染逻辑 (增加了 onerror 处理，指向深色背景图) ---
         const homeList = document.getElementById('homeList');
         const todayIdx = [0, 1, 2]; 
 
@@ -409,7 +396,7 @@
             homeList.innerHTML += `
                 <div class="recipe-card-large" onclick="openRecipe(${idx})">
                     <div class="time-badge">${r.time}</div>
-                    <img src="${r.img}" class="recipe-img-large" onerror="this.src='${FALLBACK_IMG}'">
+                    <img src="${r.img}" class="recipe-img-large" onerror="this.src='${DARK_PLACEHOLDER_IMG}'">
                     <div class="recipe-info">
                         <div class="recipe-name">${r.title}</div>
                         <div style="font-size:0.9rem; color:#ccc;">${r.desc}</div>
@@ -424,7 +411,7 @@
         DB.forEach((r, idx) => {
             moreList.innerHTML += `
                 <div class="grid-card" onclick="openRecipe(${idx})">
-                    <img src="${r.img}" onerror="this.src='${FALLBACK_IMG}'">
+                    <img src="${r.img}" onerror="this.src='${DARK_PLACEHOLDER_IMG}'">
                     <div class="info">
                         <div class="title">${r.title}</div>
                         <div style="font-size:0.8rem; color:var(--accent-green); margin-top:5px;">${r.time}</div>
@@ -446,7 +433,7 @@
         function openRecipe(idx) {
             const r = DB[idx];
             const html = `
-                <img src="${r.img}" style="width:100%; height:260px; object-fit:cover;" onerror="this.src='${FALLBACK_IMG}'">
+                <img src="${r.img}" style="width:100%; height:260px; object-fit:cover; background-color:var(--card-dark);" onerror="this.src='${DARK_PLACEHOLDER_IMG}'">
                 <div style="padding:20px;">
                     <h2 style="color:#235347; margin-top:0;">${r.title}</h2>
                     <p style="background:rgba(142,182,155,0.2); padding:10px; border-radius:8px;">${r.desc}</p>
@@ -491,11 +478,11 @@
             const list = document.getElementById('rankList');
             list.innerHTML = '';
             users.sort((a,b)=>b.s - a.s).forEach((u, i) => {
-                let hHtml = u.h.length ? `<div class="history-grid">${u.h.map(src=>`<img src="${src}" class="history-img">`).join('')}</div>` : '<div style="color:#666; font-size:0.8rem; text-align:center;">暂无记录</div>';
+                let hHtml = u.h.length ? `<div class="history-grid">${u.h.map(src=>`<img src="${src}" class="history-img" onerror="this.src='${DARK_PLACEHOLDER_IMG}'">`).join('')}</div>` : '<div style="color:#666; font-size:0.8rem; text-align:center;">暂无记录</div>';
                 list.innerHTML += `
                     <div style="background:rgba(255,255,255,0.05); border-radius:12px; margin-bottom:10px; overflow:hidden;">
                         <div class="rank-item" onclick="toggleHist(this)">
-                            <div class="rank-icon-box" style="background:${i==0?'var(--accent-gold)':'var(--card-mid)'}">${i+1}</div>
+                            <div class="rank-icon-box" style="background:${i==0?'var(--accent-gold)':'var(--card-mid)'}; color:${i==0?'#051F20':'#fff'}">${i+1}</div>
                             <div style="flex:1; color:white;">
                                 <div style="font-weight:bold;">${u.n} ${i==0?'👑':''}</div>
                                 <div style="font-size:0.8rem; color:var(--accent-green);">积分: ${u.s}</div>
@@ -513,11 +500,20 @@
             document.getElementById('r-'+id).classList.add('selected');
             const u = users.find(u=>u.id==id);
             const btn = document.getElementById('upBtn');
+            // 选中后更新按钮文字和颜色
             btn.innerHTML = `<i class="fas fa-camera"></i> ${u.n}做好啦！点击上传`;
             btn.style.background = 'var(--accent-gold)';
             btn.style.color = '#051F20';
         }
-        function clkUpload(){ if(curRole) document.getElementById('upFile').click(); }
+        
+        function clkUpload(){ 
+            if(!curRole) {
+                alert("请先点击上方圆形头像选择角色！");
+                return; 
+            }
+            document.getElementById('upFile').click(); 
+        }
+        
         function doUpload(el) {
             if(el.files[0]) {
                 const reader = new FileReader();
